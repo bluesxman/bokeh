@@ -6,9 +6,29 @@
    :columns ["speed" "range" "cost"]
    :rows    ["a" "b" "c" "d"]
    :data [[21 310 67584]
-          [6 370 56837]
+          [6 373 56837]
           [18 280 35000]
-          [19 220 54000]]})
+          [19 221 54000]]})
+
+(def style
+  {:data-to-space-v 2.0
+   :data-to-space-h 4.0
+   :margin-v 0.025
+   :margin-h 0.025})
+
+;;TODO: consider using idx instead of by name
+(defn column
+  [table col-name]
+  (let [idx (.indexOf (table :columns) col-name)]
+    (map #(get % idx) (table :data))))
+
+(defn normalize
+  [values]
+  (let [mx (apply max values)]
+    (map #(/ % mx) values)))
+
+(defn sort-by-col
+  [table col-name direction])
 
 (defn setup []
   (q/frame-rate 1)                    ;; Set framerate to 1 FPS
@@ -34,9 +54,9 @@
 (defn draw []
   )
 
-(q/defsketch example                  ;; Define a new sketch named example
-             :title "Oh so many grey circles"    ;; Set the title of the sketch
-             :settings #(q/smooth 2)             ;; Turn on anti-aliasing
-             :setup setup                        ;; Specify the setup fn
-             :draw draw                          ;; Specify the draw fn
-             :size [323 200])                    ;; You struggle to beat the golden ratio
+;(q/defsketch example                  ;; Define a new sketch named example
+;             :title "Oh so many grey circles"    ;; Set the title of the sketch
+;             :settings #(q/smooth 2)             ;; Turn on anti-aliasing
+;             :setup setup                        ;; Specify the setup fn
+;             :draw draw                          ;; Specify the draw fn
+;             :size [323 200])                    ;; You struggle to beat the golden ratio
