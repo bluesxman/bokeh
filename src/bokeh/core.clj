@@ -36,10 +36,10 @@
   (q/background 255))
 
 (def tlens
-  [[100 80 100]
-   [90 55 82]
-   [85 75 55]
-   [28 100 85]])
+  [["a" 100 80 100]
+   ["d" 90 55 82]
+   ["c" 85 75 55]
+   ["b" 28 100 85]])
 
 (defn draw []
   (q/stroke 150)
@@ -58,16 +58,21 @@
         total-width (+ hmargin (* col-count col-width) (* hspace (dec col-count)))
         yoffset (vec (range vmargin total-height (+ vspace row-height)))
         xoffset (vec (range hmargin total-width (+ hspace col-width)))]
-    (doseq [col (range col-count)]
+    (doseq [col (range (dec col-count))]
       (q/fill 0)
-      (q/text (get-in table [:columns col]) (xoffset col) (- vmargin 5))
+      (q/text (get-in table [:columns col]) (+ hspace col-width (xoffset col)) (- vmargin 5))
       (q/fill 150))
     (doseq [row (range row-count)
             col (range col-count)]
       (when (= row 2)
         (q/stroke 255 150 0)
         (q/fill 255 150 0))
-      (q/rect (xoffset col) (yoffset row) (get-in tlens [row col]) row-height)
+      (if (zero? col)
+        (do
+          (q/fill 0)
+          (q/text (get-in tlens [row 0]) 100 (+ 10 (yoffset row)))
+          (q/fill 150))
+        (q/rect (xoffset col) (yoffset row) (get-in tlens [row col]) row-height))
       (when (= row 2)
         (q/stroke 150)
         (q/fill 150)))))
