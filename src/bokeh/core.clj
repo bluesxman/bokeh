@@ -46,7 +46,7 @@
   (q/fill 150)
   (q/background 255)
 
-  (let [vmargin 5
+  (let [vmargin 15
         hmargin 5
         vspace 10
         hspace 30
@@ -58,6 +58,10 @@
         total-width (+ hmargin (* col-count col-width) (* hspace (dec col-count)))
         yoffset (vec (range vmargin total-height (+ vspace row-height)))
         xoffset (vec (range hmargin total-width (+ hspace col-width)))]
+    (doseq [col (range col-count)]
+      (q/fill 0)
+      (q/text (get-in table [:columns col]) (xoffset col) (- vmargin 5))
+      (q/fill 150))
     (doseq [row (range row-count)
             col (range col-count)]
       (when (= row 2)
