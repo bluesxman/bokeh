@@ -11,6 +11,22 @@
           [18 280 35000]
           [19 221 54000]]})
 
+(def directives
+  [[:color [:row "c"] :orange]
+   [:vline [:column "speed"] 16]
+   [:bold [:cell "b" "range"]]
+   [:background [:row :header] [:rbg 225 225 225]]
+   [:italic]
+   [:underline]
+   [:show-values [:column "cost"] [:gray 200]]])
+
+(def default-style
+  {:ratio   [16 9]
+   :data-to-space-v 2.0
+   :data-to-space-h 4.0
+   :margin-v 0.025
+   :margin-h 0.025})
+
 (defn raw->table
   "Convert raw vectors to a table."
   [raw-rows]
@@ -28,14 +44,6 @@
   [csv-file]
   (with-open [in-file (io/reader csv-file)]
     (raw->table (csv/read-csv in-file))))
-
-(def default-style
-  {:ratio   [16 9]
-   :data-to-space-v 2.0
-   :data-to-space-h 4.0
-   :margin-v 0.025
-   :margin-h 0.025})
-
 
 ;;TODO: consider using idx instead of by name
 (defn column
@@ -66,7 +74,7 @@
   (q/fill 150)
   (q/background 255)
 
-  (let [vmargin 15
+  (let [vmargin 20
         hmargin 5
         vspace 10
         hspace 30
@@ -80,7 +88,7 @@
         xoffset (vec (range hmargin total-width (+ hspace col-width)))]
     (doseq [col (range (dec col-count))]
       (q/fill 0)
-      (q/text (get-in table [:columns col]) (+ hspace col-width (xoffset col)) (- vmargin 5))
+      (q/text (get-in table [:columns col]) (+ hspace col-width (xoffset col)) (- vmargin 10))
       (q/fill 150))
     (doseq [row (range row-count)
             col (range col-count)]
@@ -95,7 +103,10 @@
         (q/rect (xoffset col) (yoffset row) (get-in tlens [row col]) row-height))
       (when (= row 2)
         (q/stroke 150)
-        (q/fill 150)))))
+        (q/fill 150)))
+    (q/stroke 100)
+    (let [x (+ 150 60)]
+      (q/line x 20 x 90))))
 
 (defn export-svg
   [table]
