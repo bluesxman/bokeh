@@ -1,17 +1,37 @@
 (ns bokeh.core
-  (:require [quil.core :as q]))
+  (:require [quil.core :as q]
+            [clojure.data.csv :as csv]
+            [clojure.java.io :as io]))
 
 (def table
-  {:ratio   [16 9]
-   :columns ["speed" "range" "cost"]
+  {:columns ["speed" "range" "cost"]
    :rows    ["a" "b" "c" "d"]
    :data [[21 310 67584]
           [6 373 56837]
           [18 280 35000]
           [19 221 54000]]})
 
-(def style
-  {:data-to-space-v 2.0
+(defn raw->table
+  "Convert raw vectors to a table."
+  [raw-rows]
+  (let [cols (subvec (raw-rows 0) 1 (count (raw-rows 0)))
+        row-names (vec (map #(get % 0) (rest raw-rows)))
+        parse (fn [rr]
+                (vec (map #(read-string %) (rest rr))))
+        data (vec (map parse (rest raw-rows)))]
+    {:columns cols
+     :rows    row-names
+     :data    data}))
+
+(defn csv->table
+  "Convert a csv file to a table."
+  [csv-file]
+  (with-open [in-file (io/reader csv-file)]
+    (raw->table (csv/read-csv in-file))))
+
+(def default-style
+  {:ratio   [16 9]
+   :data-to-space-v 2.0
    :data-to-space-h 4.0
    :margin-v 0.025
    :margin-h 0.025})
