@@ -6,26 +6,30 @@
 (def table
   {:columns ["speed" "range" "cost"]
    :rows    ["a" "b" "c" "d"]
-   :data [[21 310 67584]
-          [6 373 56837]
-          [18 280 35000]
-          [19 221 54000]]})
+   :data    [[21 310 67584]
+             [6 373 56837]
+             [18 280 35000]
+             [19 221 54000]]})
 
 (def directives
   [[:color [:row "c"] :orange]
    [:vline [:column "speed"] 16]
    [:bold [:cell "b" "range"]]
-   [:background [:row :header] [:rbg 225 225 225]]
+   [:background [:header-top] [:rbg 220 250 220]]
+   [:background :table [:gray 240]]
    [:italic]
    [:underline]
    [:show-values [:column "cost"] [:gray 200]]])
 
-(def default-style
-  {:ratio   [16 9]
-   :data-to-space-v 2.0
-   :data-to-space-h 4.0
-   :margin-v 0.025
-   :margin-h 0.025})
+(def style
+  {:ratio         [16 9]
+   :data-to-space [2.0 4.0]
+   :margin        [0.025 0.025]
+   :background    :white
+   :stroke        [:gray 150]
+   :fill          [:gray 150]})
+
+(def default-style {})
 
 (defn raw->table
   "Convert raw vectors to a table."
@@ -59,8 +63,56 @@
 (defn sort-by-col
   [table col-name direction])
 
+(defn color->rgb
+  [color]
+  (if (keyword? color)
+    (case color
+      :red [255 150 150]
+      :blue [150 150 255]
+      :green [150 255 150]
+      :orange [250 150 0]
+      :yellow [255 215 0]
+      :white [255 255 255]
+      :black [0 0 0])
+    (case (get color 0)
+      :rbg (rest color)
+      :gray (repeat 3 (last color)))))
+
+(defn todo
+  [k v])
+
+(defn error
+  [& xs]
+  (apply println (interpose " " xs)))
+
+(defn to-screen
+  [v]
+  (map #(* 400 %) v))
+
+(defn init-setting
+  [k v]
+  (case k
+    :ratio (todo k v)
+    :data-to-space (todo k v)
+    :margin (apply q/translate (to-screen v))
+    :background (apply q/background (color->rgb v))
+    :stroke (apply q/stroke (color->rgb v))
+    :fill (apply q/fill (color->rgb v))
+    :else (error "Unknown setting: " k v)))
+
+(defn render-tlens
+  [style directives table]
+  (doseq [setting (into default-style style)]
+    (apply init-setting setting))
+  (q/push-matrix)
+  (q/rect 0 0 10 100))
+
+(defn draw2
+  []
+  (render-tlens style directives table))
+
 (defn setup []
-  (q/frame-rate 1)                    ;; Set framerate to 1 FPS
+  (q/frame-rate 1)                                          ;; Set framerate to 1 FPS
   (q/background 255))
 
 (def tlens
@@ -86,6 +138,7 @@
         total-width (+ hmargin (* col-count col-width) (* hspace (dec col-count)))
         yoffset (vec (range vmargin total-height (+ vspace row-height)))
         xoffset (vec (range hmargin total-width (+ hspace col-width)))]
+    (q/scale 1.75)
     (doseq [col (range (dec col-count))]
       (q/fill 0)
       (q/text (get-in table [:columns col]) (+ hspace col-width (xoffset col)) (- vmargin 10))
@@ -93,8 +146,8 @@
     (doseq [row (range row-count)
             col (range col-count)]
       (when (= row 2)
-        (q/stroke 255 150 0)
-        (q/fill 255 150 0))
+        (q/stroke 255 215 0)
+        (q/fill 255 215 0))
       (if (zero? col)
         (do
           (q/fill 0)
@@ -114,9 +167,9 @@
   ;https://forum.processing.org/one/topic/export-svg.html
   )
 
-(q/defsketch example                  ;; Define a new sketch named example
-             :title "Oh so many grey circles"    ;; Set the title of the sketch
-             :settings #(q/smooth 2)             ;; Turn on anti-aliasing
-             :setup setup                        ;; Specify the setup fn
-             :draw draw                          ;; Specify the draw fn
-             :size [640 480])                    ;; You struggle to beat the golden ratio
+;(q/defsketch example                                        ;; Define a new sketch named example
+;             :title "Oh so many grey circles"               ;; Set the title of the sketch
+;             :settings #(q/smooth 2)                        ;; Turn on anti-aliasing
+;             :setup setup                                   ;; Specify the setup fn
+;             :draw draw2                                    ;; Specify the draw fn
+;             :size [960 480])                               ;; You struggle to beat the golden ratio
