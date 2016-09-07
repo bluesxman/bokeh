@@ -3,31 +3,6 @@
             [clojure.data.csv :as csv]
             [clojure.java.io :as io]))
 
-(def table
-  {:columns ["speed" "range" "cost"]
-   :rows    ["a" "b" "c" "d"]
-   :data    [[21 310 67584]
-             [6 373 56837]
-             [18 280 35000]
-             [19 221 54000]]})
-
-(def directives
-  [[:color [:row "c"] :orange]
-   [:vline [:column "speed"] 16]
-   [:bold [:cell "b" "range"]]
-   [:background [:header-top] [:rbg 220 250 220]]
-   [:background :table [:gray 240]]
-   [:italic]
-   [:underline]
-   [:show-values [:column "cost"] [:gray 200]]])
-
-(def style
-  {:ratio         [16 9]
-   :data-to-space [2.0 4.0]
-   :margin        [0.025 0.025]
-   :background    :white
-   :stroke        [:gray 150]
-   :fill          [:gray 150]})
 
 (def default-style {})
 
@@ -98,14 +73,82 @@
     :background (apply q/background (color->rgb v))
     :stroke (apply q/stroke (color->rgb v))
     :fill (apply q/fill (color->rgb v))
+    :font (q/text-font (apply q/create-font v))
     :else (error "Unknown setting: " k v)))
+
+(def style
+  {:ratio         [16 9]
+   :data-to-space [2.0 4.0]
+   :margin        [0.025 0.025]
+   :background    [:gray 220]
+   :stroke        [:gray 150]
+   :fill          [:gray 150]
+   :font          ["Georgia" 16]
+   })
+
+(def table
+  {:columns ["Speed" "Range" "Cost"]
+   :rows    ["A" "B" "C" "D"]
+   :data    [[21 310 67584]
+             [6 373 56837]
+             [18 280 35000]
+             [19 221 54000]]})
+
+(def directives
+  [[:color [:row "c"] :orange]
+   [:vline [:column "speed"] 16]
+   [:bold [:cell "b" "range"]]
+   [:background [:header-top] [:rbg 220 250 220]]
+   [:background :table [:gray 240]]
+   ;[:italic]
+   ;[:underline]
+   [:show-values [:column "cost"] [:gray 200]]
+   [:sort "speed" "cost"]])
+
+(defn font-size
+  [settings]
+  (get-in settings [:font 1]))
 
 (defn render-tlens
   [style directives table]
-  (doseq [setting (into default-style style)]
-    (apply init-setting setting))
-  (q/push-matrix)
-  (q/rect 0 0 10 100))
+  (let [settings (into default-style style)
+        canvas-color (color->rgb (settings :background))
+        col-width 110
+        col-header-height (font-size settings)
+        row-header-width 50
+        row-height 32
+        row-spacing 10]
+
+    ;; clear frame
+    (apply q/background canvas-color)
+
+    ;; TODO: move settings init to setup.  Loading font is slow and shouldn't be in draw
+    ;; initialize settings
+    (doseq [s settings ]
+     (apply init-setting s))
+
+    ;; table backgrounds
+
+    ;; column headers
+    (q/translate 0 col-header-height)
+    (q/push-matrix)
+    (q/translate row-header-width 0)
+    (doseq [col (table :columns)]
+      (q/text col 0 0)
+      (q/translate col-width 0))
+    (q/pop-matrix)
+
+    ;; row headers
+    (q/translate 0 (+ (/ row-spacing 2) (* 2 col-header-height)))
+    (q/push-matrix)
+    (doseq [r (table :rows)]
+      (q/text r 0 0)
+      (q/translate 0 row-height))
+    (q/pop-matrix)
+
+    ;; push row pop
+
+    ))
 
 (defn draw2
   []
@@ -167,9 +210,3 @@
   ;https://forum.processing.org/one/topic/export-svg.html
   )
 
-;(q/defsketch example                                        ;; Define a new sketch named example
-;             :title "Oh so many grey circles"               ;; Set the title of the sketch
-;             :settings #(q/smooth 2)                        ;; Turn on anti-aliasing
-;             :setup setup                                   ;; Specify the setup fn
-;             :draw draw2                                    ;; Specify the draw fn
-;             :size [960 480])                               ;; You struggle to beat the golden ratio
