@@ -1,0 +1,3 @@
+{:columns ["Length" "Mass" "Lifespan"]
+ :rows ["Proton" "Hydrogen" "Red blood cell" "Blue Whale" "Earth" "Sun" "Solar System" "Milky Way" "Universe"]
+ :data []}
