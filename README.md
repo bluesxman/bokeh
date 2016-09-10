@@ -1,14 +1,14 @@
 # punchline
 
-A Clojure library designed to ... well, that part is up to you.
+Clojure-based software for explanatory visualization of data.
 
 ## Usage
 
-FIXME
+TBD
 
 ## License
 
-Copyright © 2016 FIXME
+Copyright © 2016 Jonathan Newton
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
