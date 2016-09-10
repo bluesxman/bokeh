@@ -1,4 +1,4 @@
-(ns bokeh.core
+(ns punchline.core
   (:require [quil.core :as q]
             [clojure.data.csv :as csv]
             [clojure.java.io :as io]))
