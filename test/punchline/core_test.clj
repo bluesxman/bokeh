@@ -1,6 +1,6 @@
-(ns bokeh.core-test
+(ns punchline.core-test
   (:require [clojure.test :refer :all]
-            [bokeh.core :refer :all]))
+            [punchline.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
